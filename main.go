@@ -20,7 +20,8 @@ type ApiStarter struct {
 func StartServer(address string, client *mongo.Client) *ApiStarter {
 	return &ApiStarter{
 		Addr:   address,
-		client: client}
+		client: client,
+	}
 }
 
 func (s *ApiStarter) Run() {
@@ -31,6 +32,7 @@ func (s *ApiStarter) Run() {
 	router.HandleFunc("/users", utils.MakeHTTPHandleFunc(s.GetUsersHandler)).Methods("GET")
 	router.HandleFunc("/user/{id}", utils.MakeHTTPHandleFunc(s.GetUserHandler)).Methods("GET")
 	router.HandleFunc("/user", utils.MakeHTTPHandleFunc(s.CreateUserHandler)).Methods("POST")
+	router.HandleFunc("/user/{id}", utils.MakeHTTPHandleFunc(s.deleteUserById)).Methods("DELETE")
 
 	fmt.Println("Server started at port :8000")
 	http.ListenAndServe(s.Addr, r)

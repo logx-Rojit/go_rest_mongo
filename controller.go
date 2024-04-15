@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"go_rest_mongo/utils"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (s *ApiStarter) GetUsersHandler(w http.ResponseWriter, r *http.Request) error {
@@ -27,11 +27,15 @@ func (s *ApiStarter) GetUsersHandler(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *ApiStarter) GetUserHandler(w http.ResponseWriter, r *http.Request) error {
-	var user *User
+	var user User
+	var err error
 	coll := s.client.Database("HRM").Collection("user")
 	id := getId(r)
-	fmt.Println(id)
-	err := coll.FindOne(context.Background(), bson.M{"_id": id}).Decode(&user)
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	err = coll.FindOne(context.Background(), bson.M{"_id": userId}).Decode(&user)
 	if err != nil {
 		return err
 	}
@@ -39,16 +43,38 @@ func (s *ApiStarter) GetUserHandler(w http.ResponseWriter, r *http.Request) erro
 }
 
 func (s *ApiStarter) CreateUserHandler(w http.ResponseWriter, r *http.Request) error {
-	coll := s.client.Database("HRM").Collection("user")
 	var user *User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		return err
 	}
-	_, err := coll.InsertOne(context.Background(), user)
+	coll := s.client.Database("HRM").Collection("user")
+
+	err := utils.SendEmail(user.Email, "User Created successfully", "This is new Email and thanks for creating user using this application")
+
+	if err != nil {
+		return utils.WriteJSON(w, http.StatusFailedDependency, err)
+	}
+	_, err = coll.InsertOne(context.Background(), user)
 	if err != nil {
 		return err
 	}
-	return utils.WriteJSON(w, http.StatusOK, "User created successfully!!!")
+	return utils.WriteJSON(w, http.StatusOK, user)
+}
+
+func (s *ApiStarter) deleteUserById(w http.ResponseWriter, r *http.Request) error {
+	id := getId(r)
+
+	coll := s.client.Database("HRM").Collection("user")
+	userId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	_, err = coll.DeleteOne(context.Background(), bson.M{"_id": userId})
+	if err != nil {
+		return err
+	}
+
+	return utils.WriteJSON(w, http.StatusOK, "User Deleted Successfully!!!")
 }
 
 func getId(r *http.Request) string {
