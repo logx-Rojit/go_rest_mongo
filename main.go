@@ -12,10 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type ApiStarter struct {
-	Addr   string
-	client *mongo.Client
-}
+
 
 func StartServer(address string, client *mongo.Client) *ApiStarter {
 	return &ApiStarter{

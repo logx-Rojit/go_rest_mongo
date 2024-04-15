@@ -2,7 +2,13 @@ package main
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type ApiStarter struct {
+	Addr   string
+	client *mongo.Client
+}
 
 type User struct {
 	Id        primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`

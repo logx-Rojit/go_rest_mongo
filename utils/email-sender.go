@@ -27,12 +27,11 @@ func SendEmail(to string, subject string, body string) error {
 	if err != nil {
 		return nil
 	}
-	fmt.Println("Port for sending email", port, to, SENDER_EMAIL, subject, body)
 	d := gomail.NewDialer(HOST, port, EMAIL, PASSWORD)
 
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
-	if err := d.DialAndSend(); err != nil {
+	if err := d.DialAndSend(m); err != nil {
 		fmt.Println("Error is ", err)
 		return err
 	}
