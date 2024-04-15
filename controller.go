@@ -48,8 +48,9 @@ func (s *ApiStarter) CreateUserHandler(w http.ResponseWriter, r *http.Request) e
 		return err
 	}
 	coll := s.client.Database("HRM").Collection("user")
+	password := utils.GenerateRandomPassword(16, true, true, true)
 
-	err := utils.SendEmail(user.Email, "User Created successfully!!!", "This is new Email and thanks for creating user using this application")
+	err := utils.SendEmail(user.Email, "User Created successfully!!!", "This is new Email and thanks for creating user using this application and your password "+password+" thanks")
 
 	if err != nil {
 		return utils.WriteJSON(w, http.StatusFailedDependency, err)
