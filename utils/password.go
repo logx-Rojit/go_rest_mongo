@@ -3,6 +3,8 @@ package utils
 import (
 	"math/rand"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -16,7 +18,7 @@ func init() {
 	rand.New(source)
 }
 
-func GenerateRandomPassword(size int8, useLetters bool, useSpecialChar bool, useNumberChar bool) string {
+func GenerateRandomPassword(size int8, useLetters bool, useSpecialChar bool, useNumberChar bool) (string, string) {
 	b := make([]byte, size)
 
 	for i := range b {
@@ -28,6 +30,19 @@ func GenerateRandomPassword(size int8, useLetters bool, useSpecialChar bool, use
 			b[i] = numberChar[rand.Intn(len(numberChar))]
 		}
 	}
-	return string(b)
+	hash, _ := HashPassword(string(b))
+	return hash, string(b)
+}
 
+func HashPassword(password string) (string, error) {
+	salt := 14
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), salt)
+	return string(hash), err
+}
+
+func ComparePassword(password string, dbPassword string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password)); err != nil {
+		return err
+	}
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"go_rest_mongo/utils"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,7 +16,7 @@ func (s *ApiStarter) GetUsersHandler(w http.ResponseWriter, r *http.Request) err
 	// query := r.URL.Query()
 	// fmt.Println(query.Get("page"), query.Get("pageSize"))
 	var user []*User
-	coll := s.client.Database("HRM").Collection("user")
+	coll := s.Client.Database("HRM").Collection("user")
 	data, err := coll.Find(context.Background(), bson.D{})
 	if err != nil {
 		return err
@@ -29,7 +30,7 @@ func (s *ApiStarter) GetUsersHandler(w http.ResponseWriter, r *http.Request) err
 func (s *ApiStarter) GetUserHandler(w http.ResponseWriter, r *http.Request) error {
 	var user User
 	var err error
-	coll := s.client.Database("HRM").Collection("user")
+	coll := s.Client.Database("HRM").Collection("user")
 	id := getId(r)
 	userId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -47,10 +48,14 @@ func (s *ApiStarter) CreateUserHandler(w http.ResponseWriter, r *http.Request) e
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		return err
 	}
-	coll := s.client.Database("HRM").Collection("user")
-	password := utils.GenerateRandomPassword(16, true, true, true)
+	coll := s.Client.Database("HRM").Collection("user")
+	HashPassword, password := utils.GenerateRandomPassword(16, true, true, true)
 
 	err := utils.SendEmail(user.Email, "User Created successfully!!!", "This is new Email and thanks for creating user using this application and your password "+password+" thanks")
+
+	user.Password = HashPassword
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	if err != nil {
 		return utils.WriteJSON(w, http.StatusFailedDependency, err)
@@ -65,7 +70,7 @@ func (s *ApiStarter) CreateUserHandler(w http.ResponseWriter, r *http.Request) e
 func (s *ApiStarter) deleteUserById(w http.ResponseWriter, r *http.Request) error {
 	id := getId(r)
 
-	coll := s.client.Database("HRM").Collection("user")
+	coll := s.Client.Database("HRM").Collection("user")
 	userId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err

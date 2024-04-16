@@ -12,12 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
-
 func StartServer(address string, client *mongo.Client) *ApiStarter {
 	return &ApiStarter{
 		Addr:   address,
-		client: client,
+		Client: client,
 	}
 }
 
