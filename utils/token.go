@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -31,4 +32,17 @@ func GenerateToken(tokenType string, jti string, id string, expire int64) (strin
 	}
 	return tokenString, nil
 
+}
+
+func VerifyToken(inComingToken string) error {
+	token, err := jwt.Parse(inComingToken, func(token *jwt.Token) (interface{}, error) {
+		return nil, nil
+	})
+	if err != nil {
+		return err
+	}
+	if !token.Valid {
+		return errors.New("Invalid Token!!!")
+	}
+	return nil
 }

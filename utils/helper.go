@@ -2,13 +2,28 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 )
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
 	Error string `json:"error"`
+}
+
+func GetAuthorization(r *http.Request) error {
+	authorization := r.Header.Get("Authorization")
+	if authorization == "" {
+		return errors.New("please provide token to get api data")
+	}
+	tokenString := strings.Split(authorization, " ")[1]
+	err := VerifyToken(tokenString)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
