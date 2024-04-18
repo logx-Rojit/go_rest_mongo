@@ -24,6 +24,7 @@ func (s *ApiStarter) Run() {
 	r := mux.NewRouter()
 	router := r.PathPrefix("/api/v1").Subrouter()
 
+	router.HandleFunc("/login", utils.MakeHTTPHandleFunc(s.login)).Methods("POST")
 	router.HandleFunc("/users", utils.MakeHTTPHandleFunc(s.GetUsersHandler)).Methods("GET")
 	router.HandleFunc("/user/{id}", utils.MakeHTTPHandleFunc(s.GetUserHandler)).Methods("GET")
 	router.HandleFunc("/user", utils.MakeHTTPHandleFunc(s.CreateUserHandler)).Methods("POST")
