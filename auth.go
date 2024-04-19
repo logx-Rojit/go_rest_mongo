@@ -24,7 +24,7 @@ type loginResponse struct {
 
 func (s *ApiStarter) login(w http.ResponseWriter, r *http.Request) error {
 
-	coll := s.Client.Database("HRM").Collection("user")
+	coll := s.Client.Database("HRM")
 	var lg loginType
 	var user *User
 	var lr loginResponse
@@ -35,7 +35,7 @@ func (s *ApiStarter) login(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	filter := bson.M{"email": lg.Email}
-	err = coll.FindOne(context.Background(), filter).Decode(&user)
+	err = coll.Collection("user").FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
 		return err
 	}
@@ -52,6 +52,7 @@ func (s *ApiStarter) login(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
 	lr.AccessToken = accessToken
 	lr.RefreshToken = refreshToken
 	lr.Data = *user

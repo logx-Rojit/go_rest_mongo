@@ -31,3 +31,11 @@ type EmailTemplate struct {
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
+
+type Token struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserId    primitive.ObjectID `json:"userId" bson:"userId"`
+	Jti       string             `json:"jti" bson:"jti"`
+	ExpireAt  time.Time          `json:"expireAt" bson:"expireAt"`
+	TokenType string             `json:"tokenType" bson:"tokenType"`
+}

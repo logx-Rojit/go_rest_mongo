@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go_rest_mongo/database"
+	"go_rest_mongo/middleware"
 	"go_rest_mongo/utils"
 	"log"
 	"net/http"
@@ -25,10 +26,10 @@ func (s *ApiStarter) Run() {
 	router := r.PathPrefix("/api/v1").Subrouter()
 
 	router.HandleFunc("/login", utils.MakeHTTPHandleFunc(s.login)).Methods("POST")
-	router.HandleFunc("/users", utils.MakeHTTPHandleFunc(s.GetUsersHandler)).Methods("GET")
-	router.HandleFunc("/user/{id}", utils.MakeHTTPHandleFunc(s.GetUserHandler)).Methods("GET")
-	router.HandleFunc("/user", utils.MakeHTTPHandleFunc(s.CreateUserHandler)).Methods("POST")
-	router.HandleFunc("/user/{id}", utils.MakeHTTPHandleFunc(s.deleteUserById)).Methods("DELETE")
+	router.HandleFunc("/users", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUsersHandler))).Methods("GET")
+	router.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUserHandler))).Methods("GET")
+	router.HandleFunc("/user", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.CreateUserHandler))).Methods("POST")
+	router.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.deleteUserById))).Methods("DELETE")
 
 	fmt.Println("Server started at port :8000")
 	http.ListenAndServe(s.Addr, r)

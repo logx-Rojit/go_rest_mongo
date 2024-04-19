@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
 )
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
@@ -18,8 +17,8 @@ func GetAuthorization(r *http.Request) error {
 	if authorization == "" {
 		return errors.New("please provide token to get api data")
 	}
-	tokenString := strings.Split(authorization, " ")[1]
-	err := VerifyToken(tokenString)
+	tokenString := authorization[len("Bearer "):]
+	err := VerifyToken(tokenString, "access")
 	if err != nil {
 		return err
 	}

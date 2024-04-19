@@ -34,9 +34,15 @@ func GenerateToken(tokenType string, jti string, id string, expire int64) (strin
 
 }
 
-func VerifyToken(inComingToken string) error {
+func VerifyToken(inComingToken, tokenType string) error {
+	secret := os.Getenv("JWT_ACCESS_TOKEN_SECRET")
+
+	if tokenType == "refresh" {
+		secret = os.Getenv("JWT_REFRESH_TOKEN_SECRET")
+
+	}
 	token, err := jwt.Parse(inComingToken, func(token *jwt.Token) (interface{}, error) {
-		return nil, nil
+		return []byte(secret), nil
 	})
 	if err != nil {
 		return err
