@@ -39,3 +39,13 @@ type Token struct {
 	ExpireAt  time.Time          `json:"expireAt" bson:"expireAt"`
 	TokenType string             `json:"tokenType" bson:"tokenType"`
 }
+
+type loggedIN struct {
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	UserId    primitive.ObjectID `json:"userId" bson:"userId"`
+	Date      time.Time          `json:"date" bson:"date"`
+	InTime    time.Time          `json:"inTime" bson:"inTime"`
+	OutTime   time.Time          `json:"outTime" bson:"outTime"`
+	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
+	UpdateAt  time.Time          `json:"updatedAt" bson:"updatedAt"`
+}

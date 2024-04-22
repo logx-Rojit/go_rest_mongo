@@ -23,13 +23,18 @@ func StartServer(address string, client *mongo.Client) *ApiStarter {
 func (s *ApiStarter) Run() {
 
 	r := mux.NewRouter()
-	router := r.PathPrefix("/api/v1").Subrouter()
+	newRouter := r.PathPrefix("/api/v1").Subrouter()
 
-	router.HandleFunc("/login", utils.MakeHTTPHandleFunc(s.login)).Methods("POST")
-	router.HandleFunc("/users", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUsersHandler))).Methods("GET")
-	router.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUserHandler))).Methods("GET")
-	router.HandleFunc("/user", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.CreateUserHandler))).Methods("POST")
-	router.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.deleteUserById))).Methods("DELETE")
+	// Login Route
+	newRouter.HandleFunc("/login", utils.MakeHTTPHandleFunc(s.login)).Methods("POST")
+	newRouter.HandleFunc("/users", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUsersHandler))).Methods("GET")
+	newRouter.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUserHandler))).Methods("GET")
+	newRouter.HandleFunc("/user", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.CreateUserHandler))).Methods("POST")
+	newRouter.HandleFunc("/user/{id}", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.deleteUserById))).Methods("DELETE")
+
+	//Create user login and checkout time
+	newRouter.HandleFunc("/checkIn", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.CheckIn))).Methods("POST")
+	newRouter.HandleFunc("/get-list", middleware.RoleValidatorMiddleware(utils.MakeHTTPHandleFunc(s.GetUserCheckIn))).Methods("GET")
 
 	fmt.Println("Server started at port :8000")
 	http.ListenAndServe(s.Addr, r)
